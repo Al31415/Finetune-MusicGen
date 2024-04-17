@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Generator</title>
+</head>
+<body>
+    <h1>Generate Music</h1>
+    <p>Enter a description for the music you want to generate:</p>
+    <form id="musicForm" onsubmit="generateMusic(); return false;">
+        <input type="text" id="description" name="description" placeholder="Describe the music theme" required>
+        <button type="submit">Generate Audio</button>
+    </form>
+    <audio controls id="audioPlayer" style="width: 100%; margin-top: 20px;">
+        Your browser does not support the audio element.
+    </audio>
+    <script>
+        function generateMusic() {
+            var description = document.getElementById('description').value;
+            fetch('/generate', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({description: description})
+            }).then(response => {
+                if (response.ok) {
+                    return response.blob();
+                } else {
+                    throw new Error('Failed to generate music');
+                }
+            }).then(blob => {
+                var url = URL.createObjectURL(blob);
+                document.getElementById('audioPlayer').src = url;
+                document.getElementById('audioPlayer').load();
+                document.getElementById('audioPlayer').play();
+            }).catch(error => {
+                console.error('Error:', error);
+                alert('Error generating music: ' + error.message);
+            });
+        }
+    </script>
+</body>
+</html>
